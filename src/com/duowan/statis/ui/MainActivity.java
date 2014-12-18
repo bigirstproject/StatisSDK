@@ -1,13 +1,13 @@
-package com.duowan.statis;
+package com.duowan.statis.ui;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
 import android.widget.Button;
 
 import com.duowan.downloadmanagerdemo.R;
+import com.duowan.statis.StatisControler;
 import com.duowan.util.ToastShowUtil;
 
 public class MainActivity extends ActionBarActivity implements OnClickListener {
@@ -38,6 +38,12 @@ public class MainActivity extends ActionBarActivity implements OnClickListener {
 		default:
 			break;
 		}
+	}
+	
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		StatisControler.getInstance().exit();
 	}
 
 }
