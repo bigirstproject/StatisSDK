@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.duowan.downloadmanagerdemo"
+    package="com.duowan.statis"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -13,10 +13,10 @@
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
 
     <application
+        android:name="com.duowan.statis.ui.StatisApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:label="@string/app_name" >
         <activity
             android:name="com.duowan.statis.ui.MainActivity"
             android:label="@string/app_name" >
@@ -26,6 +26,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name="com.duowan.statis.service.StatisServer"
+            android:exported="true"
+            android:process=":remote" />
     </application>
 
 </manifest>

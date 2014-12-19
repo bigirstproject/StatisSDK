@@ -1,17 +1,14 @@
 package com.duowan.statis;
 
+import android.content.Context;
 import android.content.Intent;
 
 import com.duowan.statis.StatisServiceUtil.StatisServiceToken;
-import com.duowan.statis.ui.StatisApplication;
+import com.duowan.statis.service.StatisServer;
 
-/**
- * 描述:应用启动/退出逻辑处理类
- * 
- */
 public final class StatisControler {
 
-	private static StatisApplication mApplication;
+	private Context mContext;
 
 	private static StatisControler mAppControler;
 
@@ -20,17 +17,16 @@ public final class StatisControler {
 	public StatisControler() {
 	}
 
-	private StatisControler(StatisApplication application) {
-		mApplication = application;
+	public StatisControler init(Context context) {
+		this.mContext = context;
+		return mAppControler;
 	}
 
 	public static synchronized StatisControler getInstance() {
 		if (mAppControler == null) {
 			synchronized (StatisControler.class) {
 				if (mAppControler == null) {
-					StatisApplication baseApp = (StatisApplication) StatisApplication
-							.getInstance();
-					mAppControler = new StatisControler(baseApp);
+					mAppControler = new StatisControler();
 				}
 			}
 		}
@@ -40,17 +36,16 @@ public final class StatisControler {
 	/**
 	 * 启动软件时做初始化工作
 	 */
-	public void init() {
-		mStatisServiceToken = StatisServiceUtil.bindToService(StatisApplication
-				.getInstance());
+	public void startStatis() {
+		mStatisServiceToken = StatisServiceUtil.bindToService(mContext);
 	}
 
 	/**
 	 * 退出服务
 	 */
-	public void exit() {
+	public void stopStatis() {
 		StatisServiceUtil.unbindFromService(mStatisServiceToken);
-		mApplication.stopService(new Intent(mApplication, StatisServer.class));
+		mContext.stopService(new Intent(mContext, StatisServer.class));
 	}
 
 }

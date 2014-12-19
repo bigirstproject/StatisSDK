@@ -4,7 +4,7 @@ import android.util.Log;
 
 public class LogCat {
 
-	private static final String TAG = "KGLog";
+	private static final String TAG = "DwLog";
 
 	private static boolean isDebug = true;
 
@@ -15,6 +15,10 @@ public class LogCat {
 	 */
 	public static boolean isDebug() {
 		return isDebug;
+	}
+	
+	public static void setDebug(boolean debug) {
+		isDebug = debug;
 	}
 
 	/**

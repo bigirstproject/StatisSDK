@@ -9,9 +9,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
+import com.duowan.statis.service.StatisServer;
+import com.duowan.statis.service.StatisServer.ServiceStub;
+
 public class StatisServiceUtil {
 
-	private static IStatisService sService;
+	private static ServiceStub sService;
 
 	private static HashMap<Context, ServiceBinder> sConnectionMap = new HashMap<Context, ServiceBinder>();
 
@@ -20,13 +23,14 @@ public class StatisServiceUtil {
 
 		StatisServiceToken(ContextWrapper context) {
 			mWrappedContext = context;
+			
 		}
 	}
 
 	private static class ServiceBinder implements ServiceConnection {
 
 		public void onServiceConnected(ComponentName className, IBinder service) {
-			sService = (IStatisService) service;
+			sService = (ServiceStub) service;
 		}
 
 		public void onServiceDisconnected(ComponentName className) {
@@ -39,7 +43,7 @@ public class StatisServiceUtil {
 		cw.startService(new Intent(cw, StatisServer.class));
 		ServiceBinder sb = new ServiceBinder();
 		if (cw.bindService((new Intent()).setClass(cw, StatisServer.class), sb,
-				0)) {
+				Context.BIND_AUTO_CREATE)) {
 			sConnectionMap.put(cw, sb);
 			return new StatisServiceToken(cw);
 		}
@@ -69,25 +73,45 @@ public class StatisServiceUtil {
 	 * start statis
 	 * 
 	 * @param id
+	 * @param eventid
 	 * @param packagename
+	 * @param time
 	 * @return
 	 */
-	public static boolean startStatis(int id, String packagename) {
+	public static boolean startStatis(int id, String eventid,
+			String packagename, long time) {
 		if (checkServiceBinded()) {
-			return sService.startStatis(id, packagename);
+			return sService.startStatis(id, eventid, packagename, time);
 		}
 		return false;
 	}
+
 	/**
 	 * stop statis
 	 * 
 	 * @param id
+	 * @param eventid
 	 * @param packagename
+	 * @param time
 	 * @return
 	 */
-	public static boolean StopStatis(int id, String packagename) {
+	public static boolean StopStatis(int id, String eventid,
+			String packagename, long time) {
 		if (checkServiceBinded()) {
-			return sService.stopStatis(id, packagename);
+			return sService.stopStatis(id, eventid, packagename, time);
+		}
+		return false;
+	}
+
+	/**
+	 * stop all statis
+	 * 
+	 * @param time
+	 * @return
+	 */
+	public static boolean StopStatis(long time) {
+		if (checkServiceBinded()) {
+			return sService.stopAllStatis(time);
 		}
 		return false;
 	}
