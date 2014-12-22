@@ -37,15 +37,21 @@ public final class StatisControler {
 	 * 启动软件时做初始化工作
 	 */
 	public void startStatis() {
-		mStatisServiceToken = StatisServiceUtil.bindToService(mContext);
+		if (mContext != null) {
+			mStatisServiceToken = StatisServiceUtil.bindToService(mContext);
+		}
 	}
 
 	/**
 	 * 退出服务
 	 */
 	public void stopStatis() {
-		StatisServiceUtil.unbindFromService(mStatisServiceToken);
-		mContext.stopService(new Intent(mContext, StatisServer.class));
+		if (mStatisServiceToken != null) {
+			StatisServiceUtil.unbindFromService(mStatisServiceToken);
+		}
+		if (mContext != null) {
+			mContext.stopService(new Intent(mContext, StatisServer.class));
+		}
 	}
 
 }

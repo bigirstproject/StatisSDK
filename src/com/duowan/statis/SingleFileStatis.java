@@ -42,7 +42,7 @@ public class SingleFileStatis implements ISingleFileStatis<StatisInfo> {
 		Message msg = new Message();
 		msg.what = StatisHandler.STATUS_START_CODE;
 		msg.obj = statisInfo;
-		return mHandler.sendMessageAtTime(msg, time);
+		return mHandler.sendMessageDelayed(msg, time);
 	}
 
 	@Override

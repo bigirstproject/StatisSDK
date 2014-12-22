@@ -84,8 +84,11 @@ public class StatisManager implements
 
 	@Override
 	public boolean removeFromStatisingSet(String key) {
-		mStatisSet.remove(key);
-		return true;
+		if(mStatisSet.containsKey(key)){
+			mStatisSet.remove(key);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

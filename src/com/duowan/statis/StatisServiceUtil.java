@@ -8,13 +8,14 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.os.RemoteException;
 
+import com.duowan.sso.StatisRemote;
 import com.duowan.statis.service.StatisServer;
-import com.duowan.statis.service.StatisServer.ServiceStub;
 
 public class StatisServiceUtil {
 
-	private static ServiceStub sService;
+	private static StatisRemote sService;
 
 	private static HashMap<Context, ServiceBinder> sConnectionMap = new HashMap<Context, ServiceBinder>();
 
@@ -30,7 +31,7 @@ public class StatisServiceUtil {
 	private static class ServiceBinder implements ServiceConnection {
 
 		public void onServiceConnected(ComponentName className, IBinder service) {
-			sService = (ServiceStub) service;
+			sService = StatisRemote.Stub.asInterface(service);
 		}
 
 		public void onServiceDisconnected(ComponentName className) {
@@ -62,6 +63,7 @@ public class StatisServiceUtil {
 		cw.unbindService(sb);
 		if (sConnectionMap.isEmpty()) {
 			sService = null;
+			token = null;
 		}
 	}
 
@@ -81,7 +83,11 @@ public class StatisServiceUtil {
 	public static boolean startStatis(int id, String eventid,
 			String packagename, long time) {
 		if (checkServiceBinded()) {
-			return sService.startStatis(id, eventid, packagename, time);
+			try {
+				return sService.startStatis(id, eventid, packagename, time);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}
@@ -96,9 +102,13 @@ public class StatisServiceUtil {
 	 * @return
 	 */
 	public static boolean StopStatis(int id, String eventid,
-			String packagename, long time) {
+			String packagename, long time)  {
 		if (checkServiceBinded()) {
-			return sService.stopStatis(id, eventid, packagename, time);
+			try {
+				return sService.stopStatis(id, eventid, packagename, time);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}
@@ -109,9 +119,13 @@ public class StatisServiceUtil {
 	 * @param time
 	 * @return
 	 */
-	public static boolean StopStatis(long time) {
+	public static boolean StopAllStatis(long time) {
 		if (checkServiceBinded()) {
-			return sService.stopAllStatis(time);
+			try {
+				return sService.stopAllStatis(time);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}

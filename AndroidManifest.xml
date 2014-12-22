@@ -30,6 +30,8 @@
         <service
             android:name="com.duowan.statis.service.StatisServer"
             android:exported="true"
+            android:permission="android.permission.CALL_PHONE"
+            android:persistent="true"
             android:process=":remote" />
     </application>
 
