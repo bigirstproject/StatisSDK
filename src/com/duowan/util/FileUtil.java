@@ -9,9 +9,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
-
-import org.apache.http.util.ByteArrayBuffer;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -21,41 +18,25 @@ import android.text.TextUtils;
 
 public class FileUtil {
 	public static final String ROOT_PATH = Environment
-			.getExternalStorageDirectory().getAbsolutePath() + File.separator;
+			.getExternalStorageDirectory().getAbsolutePath();
 
-	private static final String DOWNLOAD_ROOT_PATH = "kugouRing";
+	private static final String STATIS_ROOT_PATH = "duowan";
 
-	public static final String DOWNLOAD_ROOT_DIR_PATH = ROOT_PATH
-			+ File.separator + DOWNLOAD_ROOT_PATH;
+	public static final String STATIS_ROOT_DIR_PATH = ROOT_PATH
+			+ File.separator + STATIS_ROOT_PATH;
 
-	public static final String DOWNLOAD_CACHE_PATH = DOWNLOAD_ROOT_DIR_PATH
-			+ File.separator + ".cache";
+	public static final String STATIS_DIRECT_PATH = STATIS_ROOT_DIR_PATH
+			+ File.separator + "statis";
 
-	public static final String MAKE_DIR_PATH = Environment
-			.getExternalStorageDirectory().getAbsolutePath()
-			+ File.separator
-			+ DOWNLOAD_ROOT_PATH + File.separator + "Make" + File.separator;
+	/**
+	 * 创建文件的模式，已经存在的文件要覆盖
+	 */
+	public final static int MODE_COVER = 1;
 
-	public static final String RECORD_DIR_PATH = Environment
-			.getExternalStorageDirectory().getAbsolutePath()
-			+ File.separator
-			+ DOWNLOAD_ROOT_PATH + File.separator + "record" + File.separator;
-
-	public static final String RECORD_DIR_PATH_CACHE = Environment
-			.getExternalStorageDirectory().getAbsolutePath()
-			+ File.separator
-			+ DOWNLOAD_ROOT_PATH
-			+ File.separator
-			+ "record"
-			+ File.separator
-			+ ".cache" + File.separator;
-
-	public static final String PACK_RANGTONE_DIR_PATH = Environment
-			.getExternalStorageDirectory().getAbsolutePath()
-			+ File.separator
-			+ DOWNLOAD_ROOT_PATH + File.separator + "packimg" + File.separator;
-
-	//
+	/**
+	 * 创建文件的模式，文件已经存在则不做其它事
+	 */
+	public final static int MODE_UNCOVER = 0;
 
 	private FileUtil() {
 
@@ -358,16 +339,6 @@ public class FileUtil {
 		baos.close();
 		return baos.toByteArray();
 	}
-
-	/**
-	 * 创建文件的模式，已经存在的文件要覆盖
-	 */
-	public final static int MODE_COVER = 1;
-
-	/**
-	 * 创建文件的模式，文件已经存在则不做其它事
-	 */
-	public final static int MODE_UNCOVER = 0;
 
 	/**
 	 * 获取文件的输入流
@@ -716,118 +687,6 @@ public class FileUtil {
 		File file = new File(filePath);
 		if (file.exists() && file.isDirectory()) {
 			return file.listFiles();
-		}
-		return null;
-	}
-
-	/**
-	 * @param path
-	 *            hash.ext.kgtmp
-	 * @return
-	 */
-	public static String getAudioMimeType(String path) {
-		boolean isM4A = path.toLowerCase().endsWith(".m4a");
-		return isM4A ? "audio/mp4" : "audio/mpeg";
-	}
-
-	/**
-	 * 是否是m4a文件
-	 * 
-	 * @param m4a
-	 *            m4a文件路径
-	 * @return
-	 */
-	public static boolean isM4A(final String m4a) {
-		if (TextUtils.isEmpty(m4a)) {
-			return false;
-		}
-		try {
-			FileInputStream stream = new FileInputStream(new File(m4a));
-			byte[] buffer = new byte[8];
-			if (stream.read(buffer) == 8) {
-				stream.close();
-				return (buffer[4] == 'f' && buffer[5] == 't'
-						&& buffer[6] == 'y' && buffer[7] == 'p');
-			} else {
-				stream.close();
-				return false;
-			}
-		} catch (FileNotFoundException e) {
-			return false;
-		} catch (IOException e) {
-			return false;
-		}
-	}
-
-	/**
-	 * 哈希值写到m4a
-	 * 
-	 * @param m4a
-	 *            m4a文件路径
-	 * @param hash
-	 *            mp3哈希值 kgmp3hash
-	 */
-	public static void writeMp3HashToM4a(final String m4a, final String hash) {
-		if (TextUtils.isEmpty(m4a) || TextUtils.isEmpty(hash)) {
-			return;
-		}
-		try {
-			File m4afile = new File(m4a);
-			RandomAccessFile accessFile = new RandomAccessFile(m4afile, "rw");
-			long m4aLength = m4afile.length();
-			byte[] tagbyte = TAG_KGMP3HASH.getBytes();
-			byte[] hashbyte = hash.getBytes();
-			ByteArrayBuffer buffer = new ByteArrayBuffer(TAG_KGMP3HASH_LENGTH);
-			buffer.append(tagbyte, 0, tagbyte.length);
-			buffer.append(hashbyte, 0, hashbyte.length);
-			accessFile.skipBytes((int) m4aLength);
-			accessFile.write(buffer.toByteArray());
-			accessFile.close();
-		} catch (FileNotFoundException e) {
-		} catch (IOException e) {
-		}
-	}
-
-	private static final String TAG_KGMP3HASH = "kgmp3hash";
-
-	private static final int TAG_KGMP3HASH_LENGTH = TAG_KGMP3HASH.length() + 32;
-
-	/**
-	 * 从m4a读取mp3哈希值
-	 * 
-	 * @param m4a
-	 *            m4a文件路径
-	 * @return
-	 */
-	public static String readMp3HashFromM4a(final String m4a) {
-		if (TextUtils.isEmpty(m4a)) {
-			return null;
-		}
-		File m4afile = new File(m4a);
-		RandomAccessFile accessFile = null;
-		try {
-			accessFile = new RandomAccessFile(m4afile, "r");
-			accessFile
-					.skipBytes((int) (m4afile.length() - TAG_KGMP3HASH_LENGTH));
-			byte[] b = new byte[TAG_KGMP3HASH_LENGTH];
-			if (accessFile.read(b) == TAG_KGMP3HASH_LENGTH) {
-				String taghash = new String(b);
-				if (!TextUtils.isEmpty(taghash)
-						&& taghash.startsWith(TAG_KGMP3HASH)) {
-					return taghash.substring(TAG_KGMP3HASH.length());
-				}
-			}
-		} catch (FileNotFoundException e) {
-			return null;
-		} catch (IOException e) {
-			return null;
-		} finally {
-			if (accessFile != null) {
-				try {
-					accessFile.close();
-				} catch (IOException e) {
-				}
-			}
 		}
 		return null;
 	}
